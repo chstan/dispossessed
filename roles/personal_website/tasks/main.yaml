@@ -1,0 +1,8 @@
+---
+- include: update_packages.yaml
+- include: pull_code.yaml
+  vars:
+    port: 8001
+    program: /home/chstansbury/deploy/personal_website/run_personal_website
+    short_name: runs_personal_website
+    project_root: /home/chstansbury/deploy/personal_website/

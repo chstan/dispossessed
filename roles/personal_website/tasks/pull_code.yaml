@@ -1,0 +1,49 @@
+---
+- name: Creates project directory
+  file:
+    path: "{{ project_root }}"
+    state: directory
+
+- name: Checkout code
+  git:
+    repo: https://github.com/chstan/personal-website.git
+    dest: "{{ project_root }}"
+    accept_hostkey: True
+
+- name: Compile code
+  command: lein compile
+  args:
+    chdir: "{{ project_root }}"
+
+- name: rysnc static files
+  synchronize:
+    src: /Users/chstansbury/src/projects/new-website/resources/public/
+    dest: "{{ project_root }}resources/public"
+    recursive: yes
+
+- name: Remove compiled app code (TODO fix uberjar settings)
+  file:
+    path: "{{ project_root }}resources/public/js/app.js"
+    state: absent
+
+- name: Build uberjar
+  command: lein uberjar
+  args:
+    chdir: "{{ project_root }}"
+
+- name: Create bootstrap script
+  template:
+    src: templates/bootstrap.j2
+    dest: "{{ program }}"
+    mode: 0755
+
+- name: Ensure service exists
+  template:
+    src: templates/service.j2
+    dest: /etc/init.d/personal_website_server
+    mode: 0755
+  become: yes
+
+- name: Start webserver
+  command: service personal_website_server restart
+  become: yes

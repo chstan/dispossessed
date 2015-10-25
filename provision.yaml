@@ -1,0 +1,30 @@
+---
+- hosts: linode
+  roles:
+#   - role: historical_website
+    - role: personal_website
+    - role: jdauphant.nginx
+      become: yes
+      nginx_http_params:
+        - access_log /var/log/nginx/access.log
+
+      nginx_sites:
+        # This is the old version of my website, supported until I finish porting
+        historical:
+          - listen 80
+          - server_name historical.conradstansbury.com
+          - root /home/chstansbury/deploy/historical_website/
+          - location / { proxy_pass http://127.0.0.1:8000/; }
+
+        # This is the new incarnation of my personal website
+        personal:
+          - listen 80 default_server
+          - server_name www.conradstansbury.com
+          - root /home/chstansbury/deploy/historical_website/
+          - location / { proxy_pass http://127.0.0.1:8001/; }
+
+      nginx_configs:
+        proxy:
+          - proxy_set_header X-Real-IP $remote_addr
+          - proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for
+          - proxy_set_header Host $http_host

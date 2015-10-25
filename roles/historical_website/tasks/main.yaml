@@ -1,0 +1,7 @@
+---
+- include: pull_code.yaml
+  vars:
+    port: 8000
+    program: /home/chstansbury/runs_server.sh
+    short_name: runs_historical_website
+    project_root: /home/chstansbury/deploy/historical_website/

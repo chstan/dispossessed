@@ -1,0 +1,3 @@
+---
+dependencies:
+  - { role: ANXS.clojure, clojure_versions: ["1.6.0"], clojure_default_version: "1.6.0", clojure_leiningen_version: "2.5.3", become: yes }

@@ -1,0 +1,43 @@
+---
+- name: Creates project directory
+  file:
+    path: "{{ project_root }}"
+    state: directory
+
+- name: Checkout code
+  git:
+    repo: https://github.com/chstan/wobsite.git
+    dest: "{{ project_root }}"
+    accept_hostkey: True
+
+- name: Cabal install
+  command: cabal install
+  args:
+    chdir: "{{ project_root }}"
+
+- name: rysnc static files
+  synchronize:
+    src: /Users/chstansbury/src/projects/WebServer/res/
+    dest: "{{ project_root }}/res"
+    recursive: yes
+
+- name: Make directory for configuration file
+  file:
+    path: "{{ project_root }}/config/"
+    state: directory
+
+- name: Set configuration file
+  template:
+    src: templates/historical_conf.j2
+    dest: "{{ project_root }}config/configuration"
+
+- name: Ensure service exists
+  template:
+    src: templates/service.j2
+    dest: /etc/init.d/historical_website_server
+    mode: 0755
+  become: yes
+
+- name: Start webserver
+  service: name=historical_website_server state=restarted
+  become: yes
